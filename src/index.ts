@@ -10,7 +10,7 @@ export default {
             
             // Usuario: Deyson20 | Password: Dey2026* // La cadena "Deyson20:Dey2026*" en Base64 es: "RGV5c29uMjA6RGV5MjAyNio="
             const expectedAuth = "Basic RGV5c29uMjA6RGV5MjAyNio=";
-
+            
             if (!authHeader || authHeader !== expectedAuth) {
                 return new Response("Acceso denegado. Introduce tus credenciales.", {
                     status: 401,
@@ -20,39 +20,51 @@ export default {
                 });
             }
         }
-
+        
         // 1. RUTA: PANEL DE ADMINISTRACIÓN (GET)
         if (url.pathname === "/admin") {
             return new Response(renderAdminHtml(), {
                 headers: { "content-type": "text/html" },
             });
         }
-
+        
         // 2. RUTA: GUARDAR PRODUCTO (POST)
         if (url.pathname === "/admin/save" && request.method === "POST") {
+            // Dentro de la sección if (url.pathname === "/admin/save" ...)
             const data = await request.json();
-            try {
-                await env.DB.prepare(`
-                    INSERT INTO products (name, description, price, stock, image_url, category_id)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `).bind(data.name, data.description, data.price, data.stock, data.image_url, data.category_id).run();
-                
-                return new Response(JSON.stringify({ success: true }), { 
-                    headers: { "content-type": "application/json" } 
-                });
-            } catch (e) {
-                return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-            }
-        }
-
-        // 3. RUTA: TIENDA (Pestaña Principal)
-        if (url.pathname === "/" || url.pathname === "/products") {
-            const { results: products } = await env.DB.prepare("SELECT * FROM products").all();
-            return new Response(renderStoreHtml(products), {
-                headers: { "content-type": "text/html" },
+            await env.DB.prepare(`
+    INSERT INTO products (name, price, category, description, images, video, variants, bodegaName, freeShipping, stock)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`).bind(
+                data.name,
+                data.price,
+                data.category,
+                data.description,
+                data.images,
+                data.video,
+                data.variants,
+                data.bodegaName,
+                data.freeShipping ? 1 : 0,
+                data.stock
+            ).run();
+            
+            return new Response(JSON.stringify({ success: true }), {
+                headers: { "content-type": "application/json" }
             });
+        } catch (e) {
+            return new Response(JSON.stringify({ error: e.message }), { status: 500 });
         }
-
-        return new Response("Not Found", { status: 404 });
-    },
-} satisfies ExportedHandler<Env>;
+    }
+    
+    // 3. RUTA: TIENDA (Pestaña Principal)
+    if (url.pathname === "/" || url.pathname === "/products") {
+        const { results: products } = await env.DB.prepare("SELECT * FROM products").all();
+        return new Response(renderStoreHtml(products), {
+            headers: { "content-type": "text/html" },
+        });
+    }
+    
+    return new Response("Not Found", { status: 404 });
+},
+}
+satisfies ExportedHandler < Env > ;
