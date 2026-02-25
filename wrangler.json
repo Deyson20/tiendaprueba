@@ -1,0 +1,16 @@
+{
+	"compatibility_date": "2025-10-08",
+	"main": "src/index.ts",
+	"name": "tiendaprueba",
+	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_id": "dfd218af-ae4e-4d31-a225-61e37dda13ae",
+			"database_name": "Prueba"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}
