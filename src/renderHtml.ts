@@ -1,29 +1,42 @@
-export function renderHtml(content: string) {
-	return `
+export function renderStoreHtml(products: any[]) {
+    const productCards = products.map(p => `
+        <div class="product-card" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+            <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name}" style="width:100%">
+            <h3>${p.name}</h3>
+            <p>${p.description}</p>
+            <p><strong>$${p.price}</strong></p>
+            <button onclick="addToCart(${p.id})">Añadir al carrito</button>
+        </div>
+    `).join('');
+
+    return `
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="es">
       <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>D1</title>
-        <link rel="stylesheet" type="text/css" href="https://static.integrations.cloudflare.com/styles.css">
+        <title>Mi Tienda D1</title>
+        <link rel="stylesheet" href="https://static.integrations.cloudflare.com/styles.css">
+        <style>
+            .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+            header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: #f4f4f4; }
+        </style>
       </head>
-    
       <body>
         <header>
-          <img
-            src="https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/30e0d3f6-6076-40f8-7abb-8a7676f83c00/public"
-          />
-          <h1>🎉 Successfully connected d1-template to D1</h1>
+          <h1>Tienda Pro</h1>
+          <div id="cart-status">🛒 Carrito (0)</div>
         </header>
         <main>
-          <p>Your D1 Database contains the following data:</p>
-          <pre><code><span style="color: #0E838F">&gt; </span>SELECT * FROM comments LIMIT 3;<br>${content}</code></pre>
-          <small class="blue">
-            <a target="_blank" href="https://developers.cloudflare.com/d1/tutorials/build-a-comments-api/">Build a comments API with Workers and D1</a>
-          </small>
+          <div class="grid">${productCards}</div>
         </main>
+        <script>
+            let cart = [];
+            function addToCart(id) {
+                cart.push(id);
+                document.getElementById('cart-status').innerText = '🛒 Carrito (' + cart.length + ')';
+                alert('Producto añadido!');
+            }
+        </script>
       </body>
-    </html>
-`;
+    </html>`;
 }
