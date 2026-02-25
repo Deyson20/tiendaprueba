@@ -4,6 +4,22 @@ import { renderAdminHtml } from "./renderAdmin"; // Crearemos este archivo
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+        
+        if (url.pathname.startsWith("/admin")) {
+            const authHeader = request.headers.get("Authorization");
+            
+            // Usuario: Deyson20 | Password: Dey2026* // La cadena "Deyson20:Dey2026*" en Base64 es: "RGV5c29uMjA6RGV5MjAyNio="
+            const expectedAuth = "Basic RGV5c29uMjA6RGV5MjAyNio=";
+
+            if (!authHeader || authHeader !== expectedAuth) {
+                return new Response("Acceso denegado. Introduce tus credenciales.", {
+                    status: 401,
+                    headers: {
+                        "WWW-Authenticate": 'Basic realm="Admin Panel"',
+                    },
+                });
+            }
+        }
 
         // 1. RUTA: PANEL DE ADMINISTRACIÓN (GET)
         if (url.pathname === "/admin") {
